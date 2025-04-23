@@ -13,13 +13,16 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['withdraw', 'send', 'exchange']);
+            $table->string('type');
             $table->string('from_account');
-            $table->string('to_account')->nullable();
+            $table->string('name');
+            $table->string('to_account');
             $table->decimal('amount', 10, 2);
-            $table->string('currency_from')->nullable();
-            $table->string('currency_to')->nullable();
+            $table->string('type_of_purchase')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->boolean('negative')->default(false);
+            $table->string('logo')->nullable();
+            $table->date('date');
             $table->timestamps();
         });
     }
