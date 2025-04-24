@@ -12,22 +12,33 @@ class TransactionController extends Controller
     }
 
     public function store(Request $request) {
-        $data = $request->validate([
-            'type' => 'required|in:withdraw,send,exchange',
-            'from_account' => 'required|string',
-            'name' => 'string',
-            'to_account' => 'nullable|string',
-            'amount' => 'required|numeric',
-            // 'currency_from' => 'nullable|string',
-            // 'currency_to' => 'nullable|string',
-            'type_of_purchase' => 'Appstore Purchase',
-            'bank_name' => 'nullable|string',
-            'negative' => 'nullable|boolean',
-            'logo' => 'nullable|string',
-            'date' => 'nullable|date',
-        ]);
+        try {
+            $data = $request->validate([
+                'type' => 'required|in:withdraw,send,receive',
+                'from_account' => 'required|string',
+                'name' => 'nullable|string',
+                'to_account' => 'nullable|string',
+                'amount' => 'required|numeric',
+                'type_of_purchase' => 'nullable|string',
+                'bank_name' => 'nullable|string',
+                'negative' => 'nullable|boolean',
+                'logo' => 'nullable|string',
+                'date' => 'nullable|date',
+            ]);
+    
+            return $data;
+            // return auth()->user()->transactions()->create($data);
 
-        return auth()->user()->transactions()->create($data);
+        } catch (\Throwable $th) {
+            $response = [
+                "status" => 500,
+                "message" => "Something went wrong",
+                "error" => $th->getMessage()
+            ];
+
+            return response()->json($response, 500);
+        }
+        
     }
 
 

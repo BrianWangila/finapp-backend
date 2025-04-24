@@ -23,8 +23,10 @@ class AuthController extends Controller
             $user = User::create([
                 'username' => $validated['username'],
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => bcrypt($validated['password']),
             ]);
+
+            Auth::login($user);
     
             return response()->json(['user' => $user, 'token' => $user->createToken('finapp')->plainTextToken]);
        
@@ -43,12 +45,23 @@ class AuthController extends Controller
 
     // logging in
     public function login(Request $request) {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
+        try {
+            if (!Auth::attempt($request->only('email', 'password'))) {
+                return response()->json(['message' => 'Invalid credentials'], 401);
+            }
+    
+            $user = Auth::user();
+            return response()->json(['user' => $user, 'token' => $user->createToken('finapp')->plainTextToken]);
 
-        $user = Auth::user();
-        return response()->json(['user' => $user, 'token' => $user->createToken('finapp')->plainTextToken]);
+        } catch (\Throwable $th) {
+            return $response = ([
+                "message" => "Something went wrong",
+                "error" => $th->getMessage(),
+            ]);
+
+            return response()->json($response, 500);
+        }
+        
     }
 
 

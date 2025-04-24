@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
+            $table->enum('type', ['withdraw', 'Send', 'Receive']);
             $table->string('from_account');
             $table->string('name');
             $table->string('to_account');

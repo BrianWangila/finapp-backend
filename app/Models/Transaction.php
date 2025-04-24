@@ -11,7 +11,7 @@ class Transaction extends Model
     use HasFactory;
 
     protected $fillable = [
-        'type', 'from_account', 'to_account', 'amount', 'currency_from', 'currency_to'
+        'type', 'from_account', 'to_account', 'amount', 'name', 'type_of_purchase', 'bank_name', 'negative', 'logo', 'date'
     ];
 
     public function user() {
