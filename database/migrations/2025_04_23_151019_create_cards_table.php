@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('number');
             $table->decimal('balance', 10, 2);
-            $table->date('expiry');
+            $table->string('expiry');
             $table->string('cvv');
         });
     }

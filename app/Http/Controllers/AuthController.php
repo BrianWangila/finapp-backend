@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class AuthController extends Controller
 {
@@ -26,10 +28,17 @@ class AuthController extends Controller
                 'password' => bcrypt($validated['password']),
             ]);
 
-            Auth::login($user);
-    
+            $token = $user->createToken('finapp')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Registered successfully',
+                'user' => $user,
+                'token' => $token
+            ]);
+
+            // Auth::login($user);
             // return response()->json(['user' => $user, 'token' => $user->createToken('finapp')->plainTextToken]);
-            return response()->json(['message' => 'Registered successfully', 'user' => $user]);
+            // return response()->json(['message' => 'Registered successfully', 'user' => $user]);
        
         } catch (\Throwable $th) {
             return $response = ([
@@ -38,7 +47,6 @@ class AuthController extends Controller
             ]);
             return response()->json($response, 500);
         }
-        
     }
 
 
@@ -53,8 +61,15 @@ class AuthController extends Controller
             }
     
             $user = Auth::user();
+            $token = $user->createToken('finapp')->plainTextToken;
             // return response()->json(['user' => $user, 'token' => $user->createToken('finapp')->plainTextToken]);
-            return response()->json(['message' => 'Logged in', 'user' => $user]);
+            // return response()->json(['message' => 'Logged in', 'user' => $user]);
+            
+            return response()->json([
+                'message' => 'Logged in successfully',
+                'user' => $user,
+                'token' => $token
+            ]);
 
         } catch (\Throwable $th) {
             return $response = ([
@@ -63,7 +78,6 @@ class AuthController extends Controller
             ]);
             return response()->json($response, 500);
         }
-        
     }
 
 
@@ -83,5 +97,21 @@ class AuthController extends Controller
             return response()->json($response, 500);
         }
         
+    }
+
+
+    // Get user
+    public function user(Request $request) 
+    {
+        try {
+            return response()->json($request->user());
+        
+        } catch (\Throwable $th) {
+            return $response = ([
+                "message" => "Something went wrong",
+                "error" => $th->getMessage(),
+            ]);
+            return response()->json($response, 500);
+        }
     }
 }

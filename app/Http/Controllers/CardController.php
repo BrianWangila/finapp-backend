@@ -15,7 +15,7 @@ class CardController extends Controller
         $data = $request->validate([
             'number' => 'required|string',
             'balance' => 'required|numeric',
-            'expiry' => 'required|date',
+            'expiry' => ['required', 'regex:/^(0[1-9]|1[0-2])\/\d{2}$/'],
             'cvv' => 'required|string',
         ]);
 

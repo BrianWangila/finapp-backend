@@ -15,11 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // 'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*','http://localhost:5173','http://127.0.0.1:5173','192.168.100.148','http://192.168.100.148:3000','192.168.100.148:3000','capitallandinvest.com','https://capitallandinvest.com'],
+    'allowed_origins' => ['*','http://localhost:3000','http://127.0.0.1:5173','192.168.100.148','http://192.168.100.148:3000','192.168.100.148:3000','capitallandinvest.com','https://capitallandinvest.com'],
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +30,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => true,
+    'supports_credentials' => false,
 
 ];
