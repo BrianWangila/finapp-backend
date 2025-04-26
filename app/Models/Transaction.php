@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Card;
 
 class Transaction extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'type', 
+        'type',
+        'card_id',
         'from_account', 
         'to_account', 
         'amount', 
@@ -19,10 +21,22 @@ class Transaction extends Model
         'type_of_purchase', 
         'bank_name', 
         'negative', 
-        'logo', 'date'
+        'logo', 
+        'date',
+        'status',
+        'user_id'
+    ];
+
+    protected $casts = [
+        'date' => 'datetime',
+        'negative' => 'boolean',
     ];
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function card() {
+        return $this->belongsTo(Card::class);
     }
 }

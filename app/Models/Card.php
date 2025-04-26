@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Transaction;
 
 class Card extends Model
 {
@@ -15,9 +16,15 @@ class Card extends Model
         'number', 
         'balance', 
         'expiry', 
-        'cvv'];
+        'cvv',
+        'user_id'
+    ];
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function transactions() {
+        return $this->hasMany(Transaction::class);
     }
 }

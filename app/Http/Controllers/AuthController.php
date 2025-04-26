@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -21,11 +21,17 @@ class AuthController extends Controller
                 'email' => 'required|email|unique:users',
                 'password' => 'required|confirmed|min:6',
             ]);
+
+            do {
+                $idNumber = mt_rand(1000000, 9999999);
+            } while (User::where('id_number', $idNumber)->exists());
+
     
             $user = User::create([
                 'username' => $validated['username'],
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
+                'id_number' => $idNumber,
             ]);
 
             $token = $user->createToken('finapp')->plainTextToken;
@@ -112,6 +118,63 @@ class AuthController extends Controller
                 "error" => $th->getMessage(),
             ]);
             return response()->json($response, 500);
+        }
+    }
+
+
+
+    public function updateProfile(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Validate the request
+            $validator = Validator::make($request->all(), [
+                'username' => 'sometimes|string|max:255|unique:users,username,' . $user->id,
+                'email' => 'sometimes|email|max:255|unique:users,email,' . $user->id,
+                'password' => 'sometimes|confirmed|min:6',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            // Update fields if provided
+            if ($request->has('username')) {
+                $user->username = $request->username;
+            }
+
+            if ($request->has('email')) {
+                // Additional email validation to ensure it's a real email format
+                if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+                    return response()->json([
+                        'message' => 'Invalid email format',
+                        'errors' => ['email' => 'The email must be a valid email address.'],
+                    ], 422);
+                }
+                $user->email = $request->email;
+            }
+
+            if ($request->has('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->save();
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => $user,
+            ], 200);
+
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $th->getMessage(),
+            ], 500);
         }
     }
 }
