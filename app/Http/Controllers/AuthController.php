@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Google_Client;
 
 
 class AuthController extends Controller
@@ -19,7 +20,7 @@ class AuthController extends Controller
             $validated = $request->validate([
                 'username' => 'required|string|unique:users',
                 'email' => 'required|email|unique:users',
-                'password' => 'required|confirmed|min:6',
+                'password' => 'required|string|confirmed|min:8',
             ]);
 
             do {
@@ -174,6 +175,65 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Something went wrong',
                 'error' => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+
+    public function googleLogin(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_token' => 'required|string',
+            ]);
+
+            $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+            $payload = $client->verifyIdToken($request->id_token);
+
+            if (!$payload) {
+                return response()->json(['message' => 'Invalid Google token'], 401);
+            }
+
+            $email = $payload['email'];
+            $googleId = $payload['sub'];
+            $username = $payload['name'] ?? explode('@', $email)[0];
+
+            // Check if user exists
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                // Generate a unique ID number
+                do {
+                    $idNumber = mt_rand(1000000, 9999999);
+                } while (User::where('id_number', $idNumber)->exists());
+
+                // Sign up the user if they don't exist
+                $user = User::create([
+                    'username' => $username,
+                    'email' => $email,
+                    'password' => bcrypt(uniqid()),
+                    'id_number' => $idNumber,
+                    'google_id' => $googleId,
+                ]);
+            } else {
+                // Update google_id if not set
+                if (!$user->google_id) {
+                    $user->update(['google_id' => $googleId]);
+                }
+            }
+
+            Auth::login($user);
+            $token = $user->createToken('finapp')->plainTextToken;
+
+            return response()->json([
+                'message' => 'Logged in successfully',
+                'user' => $user,
+                'token' => $token,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "message" => "Something went wrong",
+                "error" => $th->getMessage(),
             ], 500);
         }
     }

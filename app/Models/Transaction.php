@@ -39,4 +39,9 @@ class Transaction extends Model
     public function card() {
         return $this->belongsTo(Card::class);
     }
+
+    public function getDateAttribute($value)
+    {
+        return $value ? \Carbon\Carbon::parse($value)->format('d/m/Y') : null;
+    }
 }

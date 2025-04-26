@@ -11,15 +11,13 @@ class NotificationController extends Controller
 {
     public function index()
     {
-        return Notification::where('user_id', Auth::id())->latest()->get();
+        return auth()->user()->notifications()->latest()->get();
     }
 
     public function markAsRead(Request $request)
     {
-        $request->validate(['id' => 'required|exists:notifications,id']);
-        $notification = Notification::where('id', $request->id)->where('user_id', Auth::id())->firstOrFail();
-        $notification->read = true;
-        $notification->save();
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->update(['is_read' => true]);
         return response()->json(['message' => 'Notification marked as read']);
     }
 }

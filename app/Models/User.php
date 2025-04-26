@@ -10,6 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 use App\Models\Card;
 use App\Models\Transaction;
 use App\Models\CurrencyExchange;
+use App\Models\Notification;
 
 
 class User extends Authenticatable
@@ -26,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'id_number',
+        'google_id',
     ];
 
     /**
@@ -58,5 +60,9 @@ class User extends Authenticatable
 
     public function currency_exchanges() {
         return $this->hasMany(CurrencyExchange::class);
+    }
+
+    public function notifications() {
+        return $this->hasMany(Notification::class);
     }
 }

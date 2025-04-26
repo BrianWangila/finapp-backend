@@ -11,6 +11,7 @@ use App\Http\Controllers\NotificationController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/google-login', [AuthController::class, 'googleLogin']);
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -39,5 +40,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notifications/mark-read', [NotificationController::class, 'markAsRead']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });
